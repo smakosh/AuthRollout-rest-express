@@ -1,44 +1,29 @@
 import { Request, Response } from "express";
 import argon2 from "argon2";
-import jsonwebtoken from "jsonwebtoken";
 
 import { prisma } from "@/config";
 import { CustomSessionData } from "@/features/auth/types";
 
 export const signupHandler = async (req: Request, res: Response) => {
-  const user = req.body;
+  const userDetails = req.body;
 
-  const hashedPasword = await argon2.hash(user.password);
+  const hashedPasword = await argon2.hash(userDetails.password);
 
-  const prismaUser = await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
-      name: user.name,
-      email: user.email,
+      name: userDetails.name,
+      email: userDetails.email,
       password: hashedPasword,
     },
     select: {
+      id: true,
       email: true,
       name: true,
-      id: true,
       posts: true,
     },
   });
 
-  const token = jsonwebtoken
-    .sign(
-      {
-        data: {
-          id: prismaUser.id,
-          email: prismaUser.email,
-          name: prismaUser.name,
-        },
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    )
-    .toString();
+  (req.session as CustomSessionData).userId = String(user.id);
 
-  (req.session as CustomSessionData).token = token;
-
-  return res.json({ ...prismaUser, token }).status(200);
+  return res.json(user).status(200);
 };

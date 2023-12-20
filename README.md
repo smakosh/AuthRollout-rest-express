@@ -2,13 +2,13 @@
 
 Roll Your Own Auth is a TypeScript project that provides a flexible authentication system for your web applications.
 
-This boilerplate is one of incoming boilerplates, this one leverages Express.js, Prisma, SQLite, and Redis to implement authentication using both session-based storage in Redis and JWT tokens, both of which are securely stored in HTTP-only cookies.
+This boilerplate is one of incoming boilerplates, this one leverages Express.js, Prisma, SQLite, and Redis to implement authentication using session-based storage in Redis, the user id is then securely stored in HTTP-only cookies.
 
-You can choose your preferred authentication strategy, whether it's session-based or JWT-based. Just keep in mind that adjustments has to be made.
+This specific project requires the following [Next.js app](https://github.com/smakosh/AuthRollout-rest-next)
 
 ## Features
 
-- **Session-Based Authentication**: Easily set up session-based authentication using Redis for storing user sessions securely.
+- **Session-Based Authentication**: Easily set up session-based authentication using Redis for storing and accessing user sessions fast.
 - **JWT-Based Authentication**: To be implemented
 
 ## Getting Started
@@ -31,12 +31,11 @@ pnpm i
 4. Start your server
 
 ```bash
-pnpm start
+pnpm dev
 ```
 
 ## Todo
 
-- [ ] implement the refresh/access tokens and the verification process for those who prefer jwt strategy
+- [ ] implement the refresh/access tokens and the verification process for those who prefer jwt strategy in a different branch
 - [ ] Hot reload, ts-node-dev or some other way
-- [ ] Document how Postgres can be used to replace SQlite
-- [ ] Dockerize this
+- [ ] Dockerize this?

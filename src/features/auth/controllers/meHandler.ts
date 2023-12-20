@@ -1,38 +1,33 @@
 import { Request, Response } from "express";
-import jsonwebtoken from "jsonwebtoken";
 
-import { CustomSessionData, DecodedToken } from "@/features/auth/types";
+import { CustomSessionData } from "@/features/auth/types";
 import { prisma } from "@/config";
 
 export const meHandler = async (req: Request, res: Response) => {
-  const token: string | undefined = (req.session as CustomSessionData).token;
+  const session: CustomSessionData = req.session;
+  const sessionId: string | undefined = session.userId;
   const userId = (req?.user as any)?.id;
 
-  if (!token && !userId) {
+  if (!sessionId && !userId) {
     return res.json({ message: "User already logged out." }).status(400);
   }
 
-  let decodedToken: DecodedToken = undefined;
+  const remainingTime = session.cookie.maxAge || 0;
 
-  if (token) {
-    try {
-      decodedToken = jsonwebtoken.verify(
-        token,
-        process.env.JWT_SECRET!
-      ) as DecodedToken;
-    } catch (err) {}
+  if (remainingTime <= 0) {
+    return res.json({ message: "Session has expired." }).status(401);
   }
 
   const user = await prisma.user.findUnique({
     where: {
-      id: decodedToken?.data.id || userId,
+      id: sessionId || userId,
     },
     select: {
-      email: true,
       id: true,
+      email: true,
       name: true,
     },
   });
 
-  return res.json({ user }).status(200);
+  return res.json(user).status(200);
 };
